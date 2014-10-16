@@ -64,6 +64,8 @@ def is_empty(any_structure):
         print('Structure is empty.')
         return True
 
+    
+    
 #function to call the API
 def callAPI(url, payload, headers, multiplier):
     for iteration in range(0, multiplier):
@@ -84,6 +86,15 @@ params = {"pageSize" : "1"}
 
 #pick a sample database
 dbid  = "b50784d2-f3a6-4d42-adf0-a9ac06e32e2b"
+
+#output file
+outputFilename = "c:/sites/raven_schema.csv"
+outputFile = open(outputFilename, 'wb')
+wr1 = csv.writer(outputFile, dialect = 'excel')
+
+#write the file header
+header = ["doc_name", "level_1", "level_2", "level_3", "level_4"]
+wr1.writerow(header)
 
 url = url_base + api_call + "/" + dbid + "/indexes/dynamic/Accounts"
 params = {"pageSize" : "1"}
@@ -115,36 +126,40 @@ for doc in collections:
                         if is_dict(s['Results'][0][l1_field][l2_field][l3_field]): #if the field is a parent
                             l4_fields = s['Results'][0][l1_field][l2_field][l3_field].keys()
                             for l4_field in l4_fields:
-                                print(doc + "," + l1_field + "," + l2_field + "," + l3_field + "," + l4_field) #level4 print
+                                
+                                #print(doc + "," + l1_field + "," + l2_field + "," + l3_field + "," + l4_field) #level4 print
+                                line = [doc, l1_field, l2_field, l3_field, l4_field]
+                                print(line)
+                                wr1.writerow(line)
                         else:
-                            print(doc + "," + l1_field + "," + l2_field + "," + l3_field) #level3 print
+                            line = [doc, l1_field, l2_field, l3_field] #level3 print
+                            print(line)
+                            wr1.writerow(line)
 
                 else:
                     if metadata == 1:
-                        print(doc + "," + l1_field + "," + l2_field ) #level2 print
+                        line = [doc, l1_field, l2_field] #level2 print
+                        print(line)
+                        wr1.writerow(line)
                     else:
                     
                         if l1_field <> "@metadata":
-                            print(doc + "," + l1_field + "," + l2_field) #level2 print
+
+                            line = [doc, l1_field, l2_field] #level2 print
+                            print(line)
+                            wr1.writerow(line)
             
         else: #no children below level 1
             if metadata == 1:
-                print(doc + "," + l1_field) #leve1 print
+                line = [doc, l1_field] #level1 print
+                wr1.writerow(line)
             else:
                 if l1_field <> "@metadata":
                     
-                    print(doc + "," + l1_field) #leve1 print
+                    line = [doc, l1_field] #level1 print
+                    print(line)
+                    wr1.writerow(line)
             
 
-stop()    
-
-for line in tenantFile.xreadlines():
-    l = [i.strip() for i in line.split(',')]
-    lines.append(l)
-
-
-    #payload = {"accountId" : "accounts/900140"}
-    #headers = {"TenantID" : "mock-100k-49efb094-9857-4784-bab9-12c0673a3cdb"}
-
 #close the input and output files
-#outputFile.close()
+outputFile.close()
